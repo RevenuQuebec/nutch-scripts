@@ -1,0 +1,35 @@
+#!/bin/sh
+
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+
+if [ "$1" = "" ]; then
+    echo "You must provide the core name (ex: ./crawl core_name)"
+else
+    if [ "$2" = "" ]; then
+        echo "You must provide the URL that must be removed from the crawl db (ex: http://www.google.ca)"
+    else
+        CWD=`pwd`
+        NUTCH_HOME=$HOME/apache-nutch-1.8-$1
+        cd $NUTCH_HOME
+
+        # To remore an url from the crawl database, we must filter it
+        if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt" ]; then
+            mv $NUTCH_HOME/conf/regex-urlfilter.txt $NUTCH_HOME/conf/regex-urlfilter.txt.bak
+        fi
+        echo "-^$2\$" > $NUTCH_HOME/conf/regex-urlfilter.txt
+        echo "+^http://www\\.revenuquebec\\.ca/.*" >> $NUTCH_HOME/conf/regex-urlfilter.txt
+
+        # Merge the crawldb in a new directory
+        $NUTCH_HOME/bin/nutch mergedb $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb -filter
+
+        # Cleanups
+        if [ -e "$HOME/crawl-$1/crawldb-new" ]; then
+            mv $HOME/crawl-$1/crawldb $HOME/crawl-$1/crawldb-bak
+            mv $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb
+        fi
+        if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt.bak" ]; then
+            mv $NUTCH_HOME/conf/regex-urlfilter.txt.bak $NUTCH_HOME/conf/regex-urlfilter.txt
+        fi
+        cd $CWD
+    fi
+fi

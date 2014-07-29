@@ -1,0 +1,7 @@
+#!/bin/sh
+ 
+if [ "$1" = "" ]; then
+    echo "You must provide the core name (ex: ./deleteCrawl core_name)"
+else
+    rm -rf $HOME/crawl-$1
+fi;
