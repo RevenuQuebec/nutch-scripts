@@ -6,7 +6,11 @@ if [ "$1" = "" ]; then
     echo "You must provide the core name (ex: ./reindex core_name)"
 else
     NUTCH_HOME=$HOME/apache-nutch-1.8-$1/
-    $HOME/deleteIndex $1
+    SCRIPTS_DIR=`dirname "${0}"`
+    DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
+    if [ -e $DELETE_INDEX_SCRIPT ]; then
+        $DELETE_INDEX_SCRIPT $1
+    fi
 #    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone -filter -normalize
     $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone
 fi;
