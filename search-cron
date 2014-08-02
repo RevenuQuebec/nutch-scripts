@@ -1,0 +1,46 @@
+#!/bin/sh
+
+SCRIPTS_DIR=`dirname "${0}"`
+CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
+REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
+
+do_core() {
+    # Create a backup of the crawl DB, just in case
+    cp -R $HOME/crawl-${1} $BACKUPS_DIR/crawl-${1}-$DATE
+
+    CRAWL_OUT_LOG=$LOGS_DIR/OUT-crawl-${1}-$DATE.log
+    CRAWL_ERR_LOG=$LOGS_DIR/ERROR-crawl-${1}-$DATE.log
+    REINDEX_OUT_LOG=$LOGS_DIR/OUT-reindex-${1}-$DATE.log
+    REINDEX_ERR_LOG=$LOGS_DIR/ERROR-reindex-${1}-$DATE.log
+
+    $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG
+    RET_CODE=$?
+    if [ ! -s $CRAWL_ERR_LOG ]; then
+        rm -rf $CRAWL_ERR_LOG
+    fi
+
+    if [ $RET_CODE -eq 0 ]; then
+        $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
+        if [ ! -s $REINDEX_ERR_LOG ]; then
+            rm -rf $REINDEX_ERR_LOG
+        fi
+    fi
+}
+
+LOGS_DIR=$1
+BACKUPS_DIR=$2
+if [ "$1" = "" ] || [ "$2" = "" ]; then
+    echo "You must provide the path to the logs and backups directories (ex: ./search-cron ./logs ./backups)"
+else
+    if [ ! -e $LOGS_DIR ]; then
+        mkdir -p $LOGS_DIR
+    fi
+    if [ ! -e $BACKUPS_DIR ]; then
+        mkdir -p $BACKUPS_DIR
+    fi
+
+    DATE=`date +\%Y-\%m-\%d-\%H\%M`
+
+    do_core rq-fr
+    do_core rq-en
+fi
