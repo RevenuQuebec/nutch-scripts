@@ -3,6 +3,7 @@
 SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
+OPTIMIZE_SCRIPT=$SCRIPTS_DIR/optimizeIndex
 
 do_core() {
     # Create a backup of the crawl DB, just in case
@@ -21,8 +22,13 @@ do_core() {
 
     if [ $RET_CODE -eq 0 ]; then
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
+        RET_CODE=$?
         if [ ! -s $REINDEX_ERR_LOG ]; then
             rm -rf $REINDEX_ERR_LOG
+        fi
+
+        if [ $RET_CODE -eq 0 ]; then
+            $OPTIMIZE_SCRIPT $1
         fi
     fi
 }
