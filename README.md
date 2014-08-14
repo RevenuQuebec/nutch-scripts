@@ -4,6 +4,8 @@ nutch-scripts
 L'utilisation d'Apache Nutch demande de réexécuter souvent les mêmes commandes de
 manières redondantes. Ces scripts ont été créés afin de faciliter l’utilisation de ces commandes.
 
+## Installation
+
 La manière la plus rapide pour récupérer les fichiers est d’utiliser git et récupérer les fichiers à
 partir du dépot de code :
 ```
@@ -16,9 +18,10 @@ $HOME/.bashrc :
 export PATH=$PATH:$HOME/scripts
 ```
 
-Exemple d'utilisation
+## Exemple d'utilisation
+
 Par exemple, pour lancer le parcours complet du site en français jusqu'à l'indexation, les
-commandes à exécuter sont :
+commandes standard à exécuter en utilisant directement Apache Nutch sont :
 ```
 $ cd apache-nutch-1.8-bin-en/
 $ export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
@@ -28,7 +31,7 @@ $ ./scripts/crawl rq-fr
 ```
 
 Dans le cas où les insctructions ci-dessus ont été suivies afin d'ajouter la ligne
-dans le fichier .bashrc, la commande est :
+dans le fichier .bashrc, la commande à utiliser est :
 ```
 $ crawl rq-fr
 ```
