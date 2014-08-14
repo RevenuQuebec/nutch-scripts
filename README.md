@@ -4,12 +4,12 @@ nutch-scripts
 L'utilisation d'Apache Nutch demande de réexécuter souvent les mêmes commandes de
 manières redondantes. Ces scripts ont été créés afin de faciliter l’utilisation de ces commandes.
 
-Les scripts doivent toujours reçevoir en entrée le nom du *core* Apache Solr sur lequel les opérations doivent être effectuées.
+Les scripts doivent toujours recevoir en entrée le nom du *core* Apache Solr sur lequel les opérations doivent être effectuées.
 
 ## Installation
 
 La manière la plus rapide pour récupérer les fichiers est d’utiliser git et récupérer les fichiers à
-partir du dépot de code :
+partir du dépôt de code :
 ```
 $ git clone https://github.com/RevenuQuebec/nutch-scripts.git
 ```
@@ -32,7 +32,7 @@ $ ./bin/crawl ./urls ../crawl-fr htp://localhost:8080/solr/rq-fr 20
 $ ./scripts/crawl rq-fr
 ```
 
-Dans le cas où les insctructions ci-dessus ont été suivies afin d'ajouter la ligne
+Dans le cas où les instructions ci-dessus ont été suivies afin d'ajouter la ligne
 dans le fichier .bashrc, la commande à utiliser est :
 ```
 $ crawl rq-fr
@@ -70,7 +70,7 @@ $ deleteCrawl rq-fr
 
 ### deleteIndex
 
-Permet de vider l'index Apache Solr pour un *core* donné. Les données du *crawldb* ne sont pas supprimées.
+Permets de vider l'index Apache Solr pour un *core* donné. Les données du *crawldb* ne sont pas supprimées.
 
 ```
 $ deleteIndex rq-fr
@@ -78,9 +78,9 @@ $ deleteIndex rq-fr
 
 ### reindex
 
-Permet de réindexer l'ensemble des pages web d'un *core* à partir des pages contenues dans le *crawldb*.
+Permets de réindexer l'ensemble des pages web d'un *core* à partir des pages contenues dans le *crawldb*.
 
-**Note**: Si l'index d'Apache Solr contient déjà des pages web et que certaines de ces pages ne sont plus présentes sur le site web, elle ne sont pas supprimées par la réindexation standard. Ce script commence donc par vider entièrement l'index d'Apache Solr pour être sûr d'avoir un index propre.
+**Note**: Si l'index d'Apache Solr contient déjà des pages web et que certaines de ces pages ne sont plus présentes sur le site web, elles ne sont pas supprimées par la réindexation standard. Ce script commence donc par vider entièrement l'index d'Apache Solr pour être sûr d'avoir un index propre.
 
 **Note**: Suite à une réindexation réussie, ce script lance également une optimisation de l'index.
 
@@ -90,7 +90,7 @@ $ reindex rq-fr
 
 ### optimizeIndex
 
-Permet d'optimiser l'index d'un *core* Apache Solr suite à un changement majeur aux données indexées.
+Permets d'optimiser l'index d'un *core* Apache Solr suite à un changement majeur aux données indexées.
 
 ```
 $ optimizeIndex rq-fr
@@ -98,9 +98,9 @@ $ optimizeIndex rq-fr
 
 ### removeurl
 
-Permet de supprimer un ou plusieurs URLs d'un *crawldb* pour un *core* donné. L'URL à supprimer est sous la forme d'une expression régulière. Il est donc possible de supprimer de l'index une section entière.
+Permets de supprimer une ou plusieurs URL d'un *crawldb* pour un *core* donné. L'URL à supprimer est sous la forme d'une expression régulière. Il est donc possible de supprimer de l'index une section entière.
 
-**Note**: Après la suppression des données du *crawldb*, les données ne sont pas réindexées dans Apache Solr. Il faut ensuite manuellement réindexer les pages si désiré.
+**Note**: Après la suppression des données du *crawldb*, les données ne sont pas réindexées dans Apache Solr. Il faut ensuite manuellement réindexer les pages, si désiré.
 
 ```
 $ removeurl rq-fr "^http:\/\/www\.[^\/]+\/(fr|en)\/partenaires\/.*$"
@@ -108,7 +108,7 @@ $ removeurl rq-fr "^http:\/\/www\.[^\/]+\/(fr|en)\/partenaires\/.*$"
 
 ### stats
 
-Permet de récupérer les statistiques du *crawldb* pour un *core* donné. Ces données permettent d'avoir des informations de base sur le contenu du *crawldb* (ex: nombre d'URLs trouvées, score minimum et maximum pour l'ensemble des pages, statistiques sur l'état des pages, nombre de pages à récupérer, etc.).
+Permets de récupérer les statistiques du *crawldb* pour un *core* donné. Ces données permettent d'avoir des informations de base sur le contenu du *crawldb* (ex: nombre d'URL trouvées, score minimum et maximum pour l'ensemble des pages, statistiques sur l'état des pages, nombre de pages à récupérer, etc.).
 
 ```
 $ stats rq-fr
