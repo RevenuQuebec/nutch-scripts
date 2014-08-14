@@ -171,3 +171,13 @@ $ crontab -e
 0 1 * * * find $HOME/logs/ -type f -ctime +2 -exec rm -rf {} \;
 0 1 * * * find $HOME/backups/ -type d -ctime +2 -exec rm -rf {} \;
 ```
+
+### copyConfig
+
+Ce script permet de copier les différents fichiers de configuration requis afin de recréer une copie de l'installation d'Apache Solr et d'Apache Nutch pour un *core* donné.
+
+Le script crée l'archive compressée **$HOME/config-*\<core\>*.tar.bz2** à l'aide de l'ensemble des fichiers de configuration. Par exemple, pour un *core* nommé **rq-fr**, l'archive est **$HOME/config-rq-fr.tar.bz2**
+
+```
+$ copyConfig rq-fr
+```
