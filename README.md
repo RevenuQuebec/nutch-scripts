@@ -160,7 +160,7 @@ Le script commence par faire un *backup* du *crawldb* au cas où un problème su
 
 Ensuite, le script procède à une réindexation entière des pages web. Étant donné que la réindexation supprime entièrement le contenu de l'index Apache Solr, le script procède à un maximum de 5 tentatives afin d'avoir un index rempli.
 
-Le script prend en entrée le nom des répertoires où seront enregistrées les fichiers de *logs* (standard et erreurs) et copiés les données pour le *backup* du *crawldb*.
+Le script prend en entrée le nom des répertoires où seront enregistrés les fichiers de *logs* (standard et erreurs) et copiés les données pour le *backup* du *crawldb*.
 
 ```
 search-cron $HOME/logs $HOME/backups
