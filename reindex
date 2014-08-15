@@ -5,7 +5,7 @@ export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 if [ "$1" = "" ]; then
     echo "You must provide the core name (ex: ./reindex core_name)"
 else
-    NUTCH_HOME=$HOME/apache-nutch-1.8-$1/
+    NUTCH_HOME=$HOME/apache-nutch-$1/
     SCRIPTS_DIR=`dirname "${0}"`
     DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
     OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex

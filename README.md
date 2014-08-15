@@ -25,7 +25,7 @@ export PATH=$PATH:$HOME/scripts
 Par exemple, pour lancer le parcours complet du site en français jusqu'à l'indexation, les
 commandes standard à exécuter en utilisant directement Apache Nutch sont :
 ```
-$ cd apache-nutch-1.8-bin-en/
+$ cd apache-nutch-bin-en/
 $ export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 $ ./bin/crawl ./urls ../crawl-fr htp://localhost:8080/solr/rq-fr 20
 À l’aide des scripts d’administration, la commande est :
@@ -40,7 +40,7 @@ $ crawl rq-fr
 
 ## Documentation des différents scripts
 
-Les scripts prennent en compte que l'installation d'Apache Nutch est effectuée dans le répertoire **$HOME/apache-nutch-1.8-*\<core\>***. Par exemple, pour un *core* nommé **rq-fr**, l'installation d'Apache Nutch est **$HOME/apache-nutch-1.8-rq-fr**.
+Les scripts prennent en compte que l'installation d'Apache Nutch est effectuée dans le répertoire **$HOME/apache-nutch-*\<core\>***. Par exemple, pour un *core* nommé **rq-fr**, l'installation d'Apache Nutch est **$HOME/apache-nutch-rq-fr**.
 
 Il est possible de réutiliser la même installation d'Apache Nutch en créant des liens symboliques. Par contre, la configuration des *cores* sera exactement pareille.
 
@@ -149,7 +149,7 @@ Metadata:
 
 **Note**: Pour plus de détails sur le contenu du *crawldb*, il est possible d'utiliser directement la commande readdb d'Apache Nutch. Par exemple, pour obtenir l'ensemble des pages qui ont l'état de redirection temporaire :
 ```
-$HOME/apache-nutch-1.8-rq-fr/bin/nutch readdb $HOME/crawl-rq-fr/crawldb -dump $HOME/crawldb-dump -status db_redir_temp
+$HOME/apache-nutch-rq-fr/bin/nutch readdb $HOME/crawl-rq-fr/crawldb -dump $HOME/crawldb-dump -status db_redir_temp
 ```
 
 ### search-cron

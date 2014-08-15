@@ -6,6 +6,6 @@ if [ "$1" = "" ]; then
     echo "You must provide the core name (ex: ./copyConfig core_name)"
 else
     CORE_HOME=$SOLR_HOME/$1
-    NUTCH_HOME=$HOME/apache-nutch-1.8-$1/
+    NUTCH_HOME=$HOME/apache-nutch-$1/
     tar jcf $HOME/config-$1.tar.bz2  $CORE_HOME/conf/ $NUTCH_HOME/conf/nutch-site.xml $NUTCH_HOME/conf/regex-urlfilter.txt $NUTCH_HOME/conf/extractors.xml
 fi;

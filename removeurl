@@ -9,7 +9,7 @@ else
         echo "You must provide the URL that must be removed from the crawl db (ex: http://www.google.ca)"
     else
         CWD=`pwd`
-        NUTCH_HOME=$HOME/apache-nutch-1.8-$1
+        NUTCH_HOME=$HOME/apache-nutch-$1
         cd $NUTCH_HOME
 
         # To remore an url from the crawl database, we must filter it

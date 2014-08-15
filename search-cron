@@ -3,7 +3,6 @@
 SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
-OPTIMIZE_SCRIPT=$SCRIPTS_DIR/optimizeIndex
 
 do_core() {
     # Create a backup of the crawl DB, just in case
@@ -14,22 +13,40 @@ do_core() {
     REINDEX_OUT_LOG=$LOGS_DIR/OUT-reindex-${1}-$DATE.log
     REINDEX_ERR_LOG=$LOGS_DIR/ERROR-reindex-${1}-$DATE.log
 
+    # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG
     RET_CODE=$?
+    # Delete the error log if it is empty
     if [ ! -s $CRAWL_ERR_LOG ]; then
         rm -rf $CRAWL_ERR_LOG
     fi
 
-    if [ $RET_CODE -eq 0 ]; then
-        $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
-        RET_CODE=$?
-        if [ ! -s $REINDEX_ERR_LOG ]; then
-            rm -rf $REINDEX_ERR_LOG
-        fi
+    # If an error happened while crawling the website, we must restore the crawldb directory from a backup
+    if [ $RET_CODE -ne 0 ]; then
+        rm -rf $HOME/crawl-${1}
+        mv $BACKUPS_DIR/crawl-${1}-$DATE $HOME/crawl-${1}
 
-        if [ $RET_CODE -eq 0 ]; then
-            $OPTIMIZE_SCRIPT $1
-        fi
+        # @todo: We should send an email to warn that the crawling failed...
+    else
+        # Reindex all pages
+        # This deletes everything from the Solr index, so there is
+        #  a maximum of 5 tries before giving up
+        for I in 1 2 3 4 5; do
+            $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
+            RET_CODE=$?
+
+            # Check if we must retry the reindexation
+            if [ $RET_CODE -eq 0 ]; then
+                # Delete the error log if it is empty
+                if [ ! -s $REINDEX_ERR_LOG ]; then
+                    rm -rf $REINDEX_ERR_LOG
+                fi
+                break
+            fi
+
+            # @todo: We should send an email to warn that the crawling failed...
+
+        done
     fi
 }
 
