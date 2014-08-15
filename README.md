@@ -4,12 +4,12 @@ nutch-scripts
 L'utilisation d'Apache Nutch demande de réexécuter souvent les mêmes commandes de
 manières redondantes. Ces scripts ont été créés afin de faciliter l’utilisation de ces commandes.
 
-Les scripts doivent toujours reçevoir en entrée le nom du *core* Apache Solr sur lequel les opérations doivent être effectuées.
+Les scripts doivent toujours recevoir en entrée le nom du *core* Apache Solr sur lequel les opérations doivent être effectuées.
 
 ## Installation
 
 La manière la plus rapide pour récupérer les fichiers est d’utiliser git et récupérer les fichiers à
-partir du dépot de code :
+partir du dépôt de code :
 ```
 $ git clone https://github.com/RevenuQuebec/nutch-scripts.git
 ```
@@ -32,7 +32,7 @@ $ ./bin/crawl ./urls ../crawl-fr htp://localhost:8080/solr/rq-fr 20
 $ ./scripts/crawl rq-fr
 ```
 
-Dans le cas où les insctructions ci-dessus ont été suivies afin d'ajouter la ligne
+Dans le cas où les instructions ci-dessus ont été suivies afin d'ajouter la ligne
 dans le fichier .bashrc, la commande à utiliser est :
 ```
 $ crawl rq-fr
@@ -70,7 +70,7 @@ $ deleteCrawl rq-fr
 
 ### deleteIndex
 
-Permet de vider l'index Apache Solr pour un *core* donné. Les données du *crawldb* ne sont pas supprimées.
+Permets de vider l'index Apache Solr pour un *core* donné. Les données du *crawldb* ne sont pas supprimées.
 
 ```
 $ deleteIndex rq-fr
@@ -78,9 +78,9 @@ $ deleteIndex rq-fr
 
 ### reindex
 
-Permet de réindexer l'ensemble des pages web d'un *core* à partir des pages contenues dans le *crawldb*.
+Permets de réindexer l'ensemble des pages web d'un *core* à partir des pages contenues dans le *crawldb*.
 
-**Note**: Si l'index d'Apache Solr contient déjà des pages web et que certaines de ces pages ne sont plus présentes sur le site web, elle ne sont pas supprimées par la réindexation standard. Ce script commence donc par vider entièrement l'index d'Apache Solr pour être sûr d'avoir un index propre.
+**Note**: Si l'index d'Apache Solr contient déjà des pages web et que certaines de ces pages ne sont plus présentes sur le site web, elles ne sont pas supprimées par la réindexation standard. Ce script commence donc par vider entièrement l'index d'Apache Solr pour être sûr d'avoir un index propre.
 
 **Note**: Suite à une réindexation réussie, ce script lance également une optimisation de l'index.
 
@@ -90,7 +90,7 @@ $ reindex rq-fr
 
 ### optimizeIndex
 
-Permet d'optimiser l'index d'un *core* Apache Solr suite à un changement majeur aux données indexées.
+Permets d'optimiser l'index d'un *core* Apache Solr suite à un changement majeur aux données indexées.
 
 ```
 $ optimizeIndex rq-fr
@@ -98,9 +98,9 @@ $ optimizeIndex rq-fr
 
 ### removeurl
 
-Permet de supprimer un ou plusieurs URLs d'un *crawldb* pour un *core* donné. L'URL à supprimer est sous la forme d'une expression régulière. Il est donc possible de supprimer de l'index une section entière.
+Permets de supprimer une ou plusieurs URL d'un *crawldb* pour un *core* donné. L'URL à supprimer est sous la forme d'une expression régulière. Il est donc possible de supprimer de l'index une section entière.
 
-**Note**: Après la suppression des données du *crawldb*, les données ne sont pas réindexées dans Apache Solr. Il faut ensuite manuellement réindexer les pages si désiré.
+**Note**: Après la suppression des données du *crawldb*, les données ne sont pas réindexées dans Apache Solr. Il faut ensuite manuellement réindexer les pages, si désiré.
 
 ```
 $ removeurl rq-fr "^http:\/\/www\.[^\/]+\/(fr|en)\/partenaires\/.*$"
@@ -108,7 +108,7 @@ $ removeurl rq-fr "^http:\/\/www\.[^\/]+\/(fr|en)\/partenaires\/.*$"
 
 ### stats
 
-Permet de récupérer les statistiques du *crawldb* pour un *core* donné. Ces données permettent d'avoir des informations de base sur le contenu du *crawldb* (ex: nombre d'URLs trouvées, score minimum et maximum pour l'ensemble des pages, statistiques sur l'état des pages, nombre de pages à récupérer, etc.).
+Permets de récupérer les statistiques du *crawldb* pour un *core* donné. Ces données permettent d'avoir des informations de base sur le contenu du *crawldb* (ex: nombre d'URL trouvées, score minimum et maximum pour l'ensemble des pages, statistiques sur l'état des pages, nombre de pages à récupérer, etc.).
 
 ```
 $ stats rq-fr
@@ -160,14 +160,26 @@ Le script commence par faire un *backup* du *crawldb* au cas où un problème su
 
 Ensuite, le script procède à une réindexation entière des pages web. Étant donné que la réindexation supprime entièrement le contenu de l'index Apache Solr, le script procède à un maximum de 5 tentatives afin d'avoir un index rempli.
 
+Le script prend en entrée le nom des répertoires où seront enregistrés les fichiers de *logs* (standard et erreurs) et copiés les données pour le *backup* du *crawldb*.
+
 ```
 search-cron $HOME/logs $HOME/backups
 ```
 
-Il est possible d'utiliser le script de la manière suivante pour avoir une mise à jour à minuit et une suppression des *backups* plus vieux de 2 jours à 1h00 :
+Il est possible d'utiliser le script de la manière suivante pour avoir une mise à jour à minuit et une suppression des *backups* et des fichiers de *logs* plus vieux de 2 jours à 1h00 :
 ```
 $ crontab -e
 0 0 * * * $HOME/scripts/search-cron $HOME/logs $HOME/backups;
 0 1 * * * find $HOME/logs/ -type f -ctime +2 -exec rm -rf {} \;
 0 1 * * * find $HOME/backups/ -type d -ctime +2 -exec rm -rf {} \;
+```
+
+### copyConfig
+
+Ce script permet de copier les différents fichiers de configuration requis afin de recréer une copie de l'installation d'Apache Solr et d'Apache Nutch pour un *core* donné.
+
+Le script crée l'archive compressée **$HOME/config-*\<core\>*.tar.bz2** à l'aide de l'ensemble des fichiers de configuration. Par exemple, pour un *core* nommé **rq-fr**, l'archive est **$HOME/config-rq-fr.tar.bz2**
+
+```
+$ copyConfig rq-fr
 ```
