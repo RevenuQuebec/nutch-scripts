@@ -23,10 +23,9 @@ do_core() {
 
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
     if [ $RET_CODE -ne 0 ]; then
+        echo "${1}: Crawl failed, restoring backup"
         rm -rf $HOME/crawl-${1}
         mv $BACKUPS_DIR/crawl-${1}-$DATE $HOME/crawl-${1}
-
-        # @todo: We should send an email to warn that the crawling failed...
     else
         # Reindex all pages
         # This deletes everything from the Solr index, so there is
@@ -44,8 +43,7 @@ do_core() {
                 break
             fi
 
-            # @todo: We should send an email to warn that the crawling failed...
-
+            echo "${1}: Reindexation (${I} of 5) failed, trying again"
         done
     fi
 }

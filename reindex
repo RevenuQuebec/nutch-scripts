@@ -7,11 +7,11 @@ if [ "$1" = "" ]; then
 else
     NUTCH_HOME=$HOME/apache-nutch-$1/
     SCRIPTS_DIR=`dirname "${0}"`
-    DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
+#    DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
     OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex
-    if [ -e $DELETE_INDEX_SCRIPT ]; then
-        $DELETE_INDEX_SCRIPT $1
-    fi
+#    if [ -e $DELETE_INDEX_SCRIPT ]; then
+#        $DELETE_INDEX_SCRIPT $1
+#    fi
 #    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone -filter -normalize
     $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone
     $OPTIMIZE_INDEX_SCRIPT $1
