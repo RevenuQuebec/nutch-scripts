@@ -13,6 +13,10 @@ else
 #        $DELETE_INDEX_SCRIPT $1
 #    fi
 #    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone -filter -normalize
-    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone
+    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/
+    RET_CODE=$?
+    if [ $RET_CODE -ne 0 ]; then
+        exit $RET_CODE
+    fi
     $OPTIMIZE_INDEX_SCRIPT $1
 fi;
