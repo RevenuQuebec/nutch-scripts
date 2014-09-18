@@ -1,33 +1,42 @@
 #!/bin/sh
 
+MUST_REMAIN_SPACE=500000 # 500 Mb
 SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
 
 do_core() {
-    # Create a backup of the crawl DB, just in case
-    cp -R $HOME/crawl-${1} $BACKUPS_DIR/crawl-${1}-$DATE
-    if [ $? -ne 0 ]; then
+    CRAWLDB_DIR=$HOME/crawl-${1}
+    CRAWLDB_SIZE=`du --max-depth=0 $CRAWLDB_DIR | awk '{print $1}'`
+    SPACE_LEFT=`df -k $HOME | tail -1 | awk '{print $4}'`
+    REMAINING_SIZE=$(($SPACE_LEFT - $CRAWLDB_SIZE))
+
+    BACKUP_OUT_LOG=$LOGS_DIR/${DATE}-OUT-backup-${1}.log
+    BACKUP_ERR_LOG=$LOGS_DIR/${DATE}-ERROR-backup-${1}.log
+    CRAWL_OUT_LOG=$LOGS_DIR/${DATE}-OUT-crawl-${1}.log
+    CRAWL_ERR_LOG=$LOGS_DIR/${DATE}-ERROR-crawl-${1}.log
+    REINDEX_OUT_LOG=$LOGS_DIR/${DATE}-OUT-reindex-${1}.log
+    REINDEX_ERR_LOG=$LOGS_DIR/${DATE}-ERROR-reindex-${1}.log
+
+    if [ $REMAINING_SIZE -le $MUST_REMAIN_SPACE ]; then
         echo "${1}: Not enough space to create the backup";
+        return 1;
+    fi
+    # Create a backup of the crawl DB, just in case
+    cp -R $CRAWLDB_DIR $BACKUPS_DIR/crawl-${1}-$DATE > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
+    RETCODE=$?
+    # Check if the backup failed
+    if [ $RETCODE -ne 0 ]; then
+        echo "${1}: Backup failed";
         rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
         return 1;
     fi
 
-    CRAWL_OUT_LOG=$LOGS_DIR/OUT-crawl-${1}-$DATE.log
-    CRAWL_ERR_LOG=$LOGS_DIR/ERROR-crawl-${1}-$DATE.log
-    REINDEX_OUT_LOG=$LOGS_DIR/OUT-reindex-${1}-$DATE.log
-    REINDEX_ERR_LOG=$LOGS_DIR/ERROR-reindex-${1}-$DATE.log
-
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
-    RET_CODE=$?
-    # Delete the error log if it is empty
-    if [ ! -s $CRAWL_ERR_LOG ]; then
-        rm -rf $CRAWL_ERR_LOG;
-    fi
-
+    RETCODE=$?
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
-    if [ $RET_CODE -ne 0 ]; then
+    if [ $RETCODE -ne 0 ]; then
         echo "${1}: Crawl failed, restoring backup";
         rm -rf $HOME/crawl-${1};
         mv $BACKUPS_DIR/crawl-${1}-$DATE $HOME/crawl-${1};
@@ -35,15 +44,10 @@ do_core() {
     else
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
-        RET_CODE=$?
+        RETCODE=$?
 
         # Check if reindexation failed
-        if [ $RET_CODE -eq 0 ]; then
-            # Delete the error log if it is empty
-            if [ ! -s $REINDEX_ERR_LOG ]; then
-                rm -rf $REINDEX_ERR_LOG;
-            fi
-        else
+        if [ $RETCODE -ne 0 ]; then
             echo "${1}: Reindexation failed";
             return 1;
         fi
@@ -54,6 +58,14 @@ check_status() {
     RETCODE=$?;
     if [ $RETCODE -ne 0 ]; then
         exit $RETCODE
+    fi
+}
+
+cleanup() {
+    # The Hadoop tmp directory can take all available space
+    HADOOP_TMP_DIR=/tmp/hadoop-$USER
+    if [ -e $HADOOP_TMP_DIR ]; then
+        rm -rf $HADOOP_TMP_DIR;
     fi
 }
 
@@ -71,12 +83,10 @@ else
 
     DATE=`date +\%Y-\%m-\%d-\%H\%M`
 
-    do_core rq-fr; check_status;
-    do_core rq-en; check_status;
+    cleanup;
+    do_core rq-fr; cleanup;
+    do_core rq-en; cleanup;
 
-    # The Hadoop tmp directory can take all available space
-    HADOOP_TMP_DIR=/tmp/hadoop-$USER
-    if [ -e $HADOOP_TMP_DIR ]; then
-        rm -rf $HADOOP_TMP_DIR;
-    fi
+    # Delete empty log files
+    find $LOGS_DIR -type f -size 0 -exec rm -f '{}' \;
 fi
