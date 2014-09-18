@@ -24,7 +24,9 @@ do_core() {
     fi
     # Create a backup of the crawl DB, just in case
     cp -R $CRAWLDB_DIR $BACKUPS_DIR/crawl-${1}-$DATE > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
-    if [ $? -ne 0 ]; then
+    RETCODE=$?
+    # Check if the backup failed
+    if [ $RETCODE -ne 0 ]; then
         echo "${1}: Backup failed";
         rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
         return 1;
@@ -32,14 +34,9 @@ do_core() {
 
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
-    RET_CODE=$?
-    # Delete the error log if it is empty
-    if [ ! -s $CRAWL_ERR_LOG ]; then
-        rm -rf $CRAWL_ERR_LOG;
-    fi
-
+    RETCODE=$?
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
-    if [ $RET_CODE -ne 0 ]; then
+    if [ $RETCODE -ne 0 ]; then
         echo "${1}: Crawl failed, restoring backup";
         rm -rf $HOME/crawl-${1};
         mv $BACKUPS_DIR/crawl-${1}-$DATE $HOME/crawl-${1};
@@ -47,15 +44,10 @@ do_core() {
     else
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
-        RET_CODE=$?
+        RETCODE=$?
 
         # Check if reindexation failed
-        if [ $RET_CODE -eq 0 ]; then
-            # Delete the error log if it is empty
-            if [ ! -s $REINDEX_ERR_LOG ]; then
-                rm -rf $REINDEX_ERR_LOG;
-            fi
-        else
+        if [ $RETCODE -ne 0 ]; then
             echo "${1}: Reindexation failed";
             return 1;
         fi
@@ -94,4 +86,7 @@ else
     cleanup;
     do_core rq-fr; cleanup;
     do_core rq-en; cleanup;
+
+    # Delete empty log files
+    find $LOGS_DIR -type f -size 0 -exec rm -f '{}' \;
 fi
