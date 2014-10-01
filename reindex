@@ -1,22 +1,21 @@
 #!/bin/sh
 
-export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+CORE_NAME=$1
+CRAWLDB_DIR=${HOME}/crawl-${CORE_NAME}/crawldb
+NUTCH_HOME=${HOME}/apache-nutch-${CORE_NAME}/
 
-if [ "$1" = "" ]; then
-    echo "You must provide the core name (ex: ./reindex core_name)"
-else
-    NUTCH_HOME=$HOME/apache-nutch-$1/
-    SCRIPTS_DIR=`dirname "${0}"`
-#    DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
-    OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex
-#    if [ -e $DELETE_INDEX_SCRIPT ]; then
-#        $DELETE_INDEX_SCRIPT $1
-#    fi
-#    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/ -deleteGone -filter -normalize
-    $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/
-    RET_CODE=$?
-    if [ $RET_CODE -ne 0 ]; then
-        exit $RET_CODE
-    fi
-    $OPTIMIZE_INDEX_SCRIPT $1
-fi;
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+check_params $1
+initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
+
+SCRIPTS_DIR=`dirname "${0}"`
+OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex
+$NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/
+RET_CODE=$?
+if [ $RET_CODE -ne 0 ]; then
+    exit $RET_CODE
+fi
+$OPTIMIZE_INDEX_SCRIPT $1
