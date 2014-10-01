@@ -1,7 +1,9 @@
 #!/bin/sh
 
-if [ "$1" = "" ]; then
-    echo "You must provide the core name (ex: ./optimizeIndex core_name)"
-else
-    curl -s http://localhost:8080/solr/$1/update --data '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'
-fi;
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+check_params $1
+
+curl -s http://localhost:8080/solr/$1/update --data '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'

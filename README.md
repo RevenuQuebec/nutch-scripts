@@ -80,9 +80,7 @@ $ deleteIndex rq-fr
 
 Permets de réindexer l'ensemble des pages web d'un *core* à partir des pages contenues dans le *crawldb*.
 
-**Note**: Si l'index d'Apache Solr contient déjà des pages web et que certaines de ces pages ne sont plus présentes sur le site web, elles ne sont pas supprimées par la réindexation standard. Ce script commence donc par vider entièrement l'index d'Apache Solr pour être sûr d'avoir un index propre.
-
-**Note**: Suite à une réindexation réussie, ce script lance également une optimisation de l'index.
+**Note**: Suite à une réindexation réussie, ce script lance ensuite une optimisation de l'index.
 
 ```
 $ reindex rq-fr

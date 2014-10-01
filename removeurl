@@ -1,35 +1,39 @@
 #!/bin/sh
 
-export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+CORE_NAME=$1
+CRAWLDB_DIR=${HOME}/crawl-${CORE_NAME}/crawldb
+NUTCH_HOME=${HOME}/apache-nutch-${CORE_NAME}/
 
-if [ "$1" = "" ]; then
-    echo "You must provide the core name (ex: ./crawl core_name)"
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+check_params $1
+initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
+
+if [ "$2" = "" ]; then
+    echo "You must provide the URL that must be removed from the crawl db (ex: http://www.google.ca)"
 else
-    if [ "$2" = "" ]; then
-        echo "You must provide the URL that must be removed from the crawl db (ex: http://www.google.ca)"
-    else
-        CWD=`pwd`
-        NUTCH_HOME=$HOME/apache-nutch-$1
-        cd $NUTCH_HOME
+    CWD=`pwd`
+    cd $NUTCH_HOME
 
-        # To remore an url from the crawl database, we must filter it
-        if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt" ]; then
-            mv $NUTCH_HOME/conf/regex-urlfilter.txt $NUTCH_HOME/conf/regex-urlfilter.txt.bak
-        fi
-        echo "-^$2\$" > $NUTCH_HOME/conf/regex-urlfilter.txt
-        echo "+^http://www\\.revenuquebec\\.ca/.*" >> $NUTCH_HOME/conf/regex-urlfilter.txt
-
-        # Merge the crawldb in a new directory
-        $NUTCH_HOME/bin/nutch mergedb $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb -filter
-
-        # Cleanups
-        if [ -e "$HOME/crawl-$1/crawldb-new" ]; then
-            mv $HOME/crawl-$1/crawldb $HOME/crawl-$1/crawldb-bak
-            mv $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb
-        fi
-        if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt.bak" ]; then
-            mv $NUTCH_HOME/conf/regex-urlfilter.txt.bak $NUTCH_HOME/conf/regex-urlfilter.txt
-        fi
-        cd $CWD
+    # To remore an url from the crawl database, we must filter it
+    if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt" ]; then
+        mv $NUTCH_HOME/conf/regex-urlfilter.txt $NUTCH_HOME/conf/regex-urlfilter.txt.bak
     fi
+    echo "-^$2\$" > $NUTCH_HOME/conf/regex-urlfilter.txt
+    echo "+^http://www\\.revenuquebec\\.ca/.*" >> $NUTCH_HOME/conf/regex-urlfilter.txt
+
+    # Merge the crawldb in a new directory
+    $NUTCH_HOME/bin/nutch mergedb $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb -filter
+
+    # Cleanups
+    if [ -e "$HOME/crawl-$1/crawldb-new" ]; then
+        mv $HOME/crawl-$1/crawldb $HOME/crawl-$1/crawldb-bak
+        mv $HOME/crawl-$1/crawldb-new $HOME/crawl-$1/crawldb
+    fi
+    if [ -e "$NUTCH_HOME/conf/regex-urlfilter.txt.bak" ]; then
+        mv $NUTCH_HOME/conf/regex-urlfilter.txt.bak $NUTCH_HOME/conf/regex-urlfilter.txt
+    fi
+    cd $CWD
 fi
