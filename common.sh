@@ -1,6 +1,8 @@
 #!/bin/sh
 
-SCRIPT_NAME=`basename $0`
+if [ "${0}" != "-bash" ]; then
+    SCRIPT_NAME=`basename $0`
+fi
 
 initialize() {
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
