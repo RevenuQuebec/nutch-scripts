@@ -23,7 +23,7 @@ do_core() {
         return 1;
     fi
     # Create a backup of the crawl DB, just in case
-    cp -R $CRAWLDB_DIR $BACKUPS_DIR/crawl-${1}-$DATE > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
+    tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C $HOME crawl-${1} > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
     RETCODE=$?
     # Check if the backup failed
     if [ $RETCODE -ne 0 ]; then
@@ -42,6 +42,9 @@ do_core() {
         mv $BACKUPS_DIR/crawl-${1}-$DATE $HOME/crawl-${1};
         return 1;
     else
+        # Remove old segments
+        cd CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +8 -exec rm -rf '{}' \;
+
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
         RETCODE=$?
