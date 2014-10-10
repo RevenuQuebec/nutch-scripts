@@ -43,7 +43,7 @@ do_core() {
         return 1;
     else
         # Remove old segments
-        cd CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +8 -exec rm -rf '{}' \;
+        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +8 -exec rm -rf '{}' \;
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
