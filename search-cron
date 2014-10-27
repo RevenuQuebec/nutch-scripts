@@ -5,6 +5,9 @@ SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
 
+MAX_FETCH_TIME=8
+MAX_BACKUP_TIME=2
+
 do_core() {
     CRAWLDB_DIR=$HOME/crawl-${1}
     CRAWLDB_SIZE=`du --max-depth=0 $CRAWLDB_DIR | awk '{print $1}'`
@@ -44,7 +47,11 @@ do_core() {
         return 1;
     else
         # Remove old segments
-        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +8 -exec rm -rf '{}' \;
+        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
+        # Remove old log files
+        find $HOME/logs/ -type f -ctime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
+        # Remove old backups
+        find $HOME/backups/ -type d -ctime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
