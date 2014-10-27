@@ -4,6 +4,7 @@ MUST_REMAIN_SPACE=500000 # 500 Mb
 SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
+BACKUPS_DIR=$HOME/backups
 
 MAX_FETCH_TIME=8
 MAX_BACKUP_TIME=2
@@ -11,7 +12,7 @@ MAX_BACKUP_TIME=2
 do_core() {
     CRAWLDB_DIR=$HOME/crawl-${1}
     CRAWLDB_SIZE=`du --max-depth=0 $CRAWLDB_DIR | awk '{print $1}'`
-    SPACE_LEFT=`df -k $HOME | tail -1 | awk '{print $4}'`
+    SPACE_LEFT=`df -k $BACKUPS_DIR | tail -1 | awk '{print $4}'`
     REMAINING_SIZE=$(($SPACE_LEFT - $CRAWLDB_SIZE))
 
     BACKUP_OUT_LOG=$LOGS_DIR/${DATE}-OUT-backup-${1}.log
@@ -75,7 +76,7 @@ check_status() {
 cleanup() {
     # The Hadoop tmp directory can take all available space
     HADOOP_TMP_DIR=/tmp/hadoop-$USER
-    if [ -e $HADOOP_TMP_DIR ]; then
+    if [ -e "$HADOOP_TMP_DIR" ]; then
         rm -rf $HADOOP_TMP_DIR;
     fi
 }
