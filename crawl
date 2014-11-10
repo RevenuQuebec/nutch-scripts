@@ -7,6 +7,10 @@ NUTCH_HOME=${HOME}/apache-nutch-${CORE_NAME}/
 SOURCE_DIR=$( dirname "$0" )
 DIR=$( cd "$SOURCE_DIR" && pwd )
 
+if [ ! -e $CRAWLDB_DIR ]; then
+    mkdir -p $CRAWLDB_DIR
+fi
+
 . $DIR/common.sh
 check_params $1
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME

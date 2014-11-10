@@ -1,0 +1,47 @@
+#!/bin/sh
+
+if [ "${0}" != "-bash" ]; then
+    SCRIPT_NAME=`basename $0`
+fi
+
+if [ "${1}" = "" ]; then
+    echo "You must provide the path to solr distribution (ex: ${SCRIPT_NAME} solr-4.10.1.tgz)"
+    exit 1
+fi
+
+CURDIR=$(pwd)
+FILENAME=$(basename "$1")
+DIRNAME="${FILENAME%.*}"
+
+echo "CURDIR:   $CURDIR"
+echo "FILENAME: $FILENAME"
+echo "DIRNAME:  $DIRNAME"
+
+if [ -e $DIRNAME ]; then
+    echo "Removing old directory ($DIRNAME)"
+    rm -rf $DIRNAME
+fi
+
+echo "Extracting solr distribution from $1"
+tar xf $1
+cd $DIRNAME/example/webapps
+
+echo "Adding Log4j into solr.war"
+mkdir solr
+cd solr/
+unzip ../solr.war
+cp ../../lib/ext/* WEB-INF/lib/
+mkdir WEB-INF/classes
+cp ../../resources/log4j.properties WEB-INF/classes/
+zip ../solr.war -r *
+cd ..
+
+echo "Installing solr"
+sudo service tomcat7 stop
+sudo rm -rf /var/lib/tomcat7/webapps/solr/
+sudo mv solr.war /var/lib/tomcat7/webapps/
+sudo service tomcat7 start
+
+echo "Removing temporary directory"
+cd $CURDIR
+rm -rf $DIRNAME
