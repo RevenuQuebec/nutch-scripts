@@ -52,7 +52,7 @@ do_core() {
         # Remove old log files
         find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
-        find $HOME/backups/ -type d -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
+        find $HOME/backups/ -type f -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
