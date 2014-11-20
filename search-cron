@@ -48,11 +48,11 @@ do_core() {
         return 1;
     else
         # Remove old segments
-        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
+        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
         # Remove old log files
-        find $HOME/logs/ -type f -ctime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
+        find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
-        find $HOME/backups/ -type d -ctime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
+        find $HOME/backups/ -type d -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
