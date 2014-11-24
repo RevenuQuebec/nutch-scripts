@@ -1,0 +1,13 @@
+#!/bin/sh
+
+CORE_NAME=$1
+SEGMENTS_DIR=${HOME}/crawl-${CORE_NAME}/segments
+MAX_FETCH_TIME=8
+
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+check_params $1
+
+cd $SEGMENTS_DIR && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
