@@ -11,6 +11,10 @@ MAX_BACKUP_TIME=2
 
 do_core() {
     CRAWLDB_DIR=$HOME/crawl-${1}
+    if [ ! -e "${CRAWLDB_DIR}" ]; then
+        mkdir ${CRAWLDB_DIR}
+    fi
+
     CRAWLDB_SIZE=`du --max-depth=0 $CRAWLDB_DIR | awk '{print $1}'`
     SPACE_LEFT=`df -k $BACKUPS_DIR | tail -1 | awk '{print $4}'`
     REMAINING_SIZE=$(($SPACE_LEFT - $CRAWLDB_SIZE))
@@ -31,7 +35,7 @@ do_core() {
     RETCODE=$?
     # Check if the backup failed
     if [ $RETCODE -ne 0 ]; then
-        echo "${1}: Backup failed";
+        echo "${1}: Backup failed (${RETCODE})";
         rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
         return 1;
     fi
@@ -41,18 +45,18 @@ do_core() {
     RETCODE=$?
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
     if [ $RETCODE -ne 0 ]; then
-        echo "${1}: Crawl failed, restoring backup";
+        echo "${1}: Crawl failed, restoring backup (${RETCODE})";
         mv $HOME/crawl-${1} $HOME/crawl-${1}.old;
         tar -C $HOME -jxf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2;
         rm -rf $HOME/crawl-${1}.old;
         return 1;
     else
         # Remove old segments
-        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -ctime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
+        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
         # Remove old log files
-        find $HOME/logs/ -type f -ctime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
+        find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
-        find $HOME/backups/ -type d -ctime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
+        find $HOME/backups/ -type f -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
@@ -60,7 +64,7 @@ do_core() {
 
         # Check if reindexation failed
         if [ $RETCODE -ne 0 ]; then
-            echo "${1}: Reindexation failed";
+            echo "${1}: Reindexation failed (${RETCODE})";
             return 1;
         fi
     fi
