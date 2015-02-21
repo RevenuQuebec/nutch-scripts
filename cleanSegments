@@ -2,7 +2,8 @@
 
 CORE_NAME=$1
 SEGMENTS_DIR=${HOME}/crawl-${CORE_NAME}/segments
-MAX_FETCH_TIME=8
+# @todo: read this from nutch config
+MAX_FETCH_TIME=2
 
 SOURCE_DIR=$( dirname "$0" )
 DIR=$( cd "$SOURCE_DIR" && pwd )

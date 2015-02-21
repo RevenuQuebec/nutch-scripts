@@ -1,0 +1,24 @@
+#!/bin/sh
+
+CORE_NAME=$1
+
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+check_params $1
+
+SEGMENTS_DIR=${HOME}/crawl-${CORE_NAME}/segments
+REQUIRED_DIRS="crawl_fetch crawl_parse parse_data parse_text"
+
+SEGMENT_DIRS=$( ls -d $SEGMENTS_DIR/* )
+for SEGMENT_DIR in $SEGMENT_DIRS
+do
+    for REQUIRED_DIR in $REQUIRED_DIRS
+    do
+        if [ ! -e "${SEGMENT_DIR}/${REQUIRED_DIR}" ]; then
+            echo "Removing corrupted segment: ${SEGMENT_DIR} (missing ${REQUIRED_DIR})"
+            rm -rf "${SEGMENT_DIR}"
+        fi
+    done
+done
