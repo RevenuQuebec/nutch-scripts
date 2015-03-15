@@ -12,7 +12,10 @@ check_params $1
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
 
 SCRIPTS_DIR=`dirname "${0}"`
+DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
 OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex
+
+$DELETE_INDEX_SCRIPT $1
 $NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $HOME/crawl-$1/crawldb/ -linkdb $HOME/crawl-$1/linkdb/ -dir $HOME/crawl-$1/segments/
 RET_CODE=$?
 if [ $RET_CODE -ne 0 ]; then

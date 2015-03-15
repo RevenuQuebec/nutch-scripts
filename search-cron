@@ -11,6 +11,9 @@ CURWD=`pwd`
 MAX_FETCH_TIME=2
 MAX_BACKUP_TIME=1
 
+LOGS_DIR=$1
+BACKUPS_DIR=$2
+
 do_core() {
     CRAWLDB_DIR=$HOME/crawl-${1}
     if [ ! -e "${CRAWLDB_DIR}" ]; then
@@ -44,6 +47,12 @@ do_core() {
         return 1;
     fi
 
+    # Remove old segments
+    if [ -e $CRAWLDB_DIR/segments ]; then
+        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
+        cd $CURWD
+    fi
+
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
     RETCODE=$?
@@ -55,9 +64,6 @@ do_core() {
         rm -rf $HOME/crawl-${1}.old;
         return 1;
     else
-        # Remove old segments
-        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
-        cd $CURWD
         # Remove old log files
         find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
@@ -77,7 +83,7 @@ do_core() {
 check_status() {
     RETCODE=$?;
     if [ $RETCODE -ne 0 ]; then
-        exit $RETCODE
+        exit $RETCODE;
     fi
 }
 
@@ -89,14 +95,23 @@ cleanup() {
     fi
 
     NUTCH_HOME=${HOME}/apache-nutch-${1}/
-    rm $NUTCH_HOME/logs/hadoop.*;
+    rm -f ${NUTCH_HOME}/logs/hadoop.*;
 }
 
-LOGS_DIR=$1
-BACKUPS_DIR=$2
-if [ "$1" = "" ] || [ "$2" = "" ]; then
+if [ "$LOGS_DIR" = "" ] || [ "$BACKUPS_DIR" = "" ]; then
     echo "You must provide the path to the logs and backups directories (ex: ./search-cron ./logs ./backups)"
 else
+    if [ -e "$HOME/search.pid" ]; then
+        SEARCH_PID=`cat $HOME/search.pid`
+        IS_RUNNING=`kill -0 $SEARCH_PID`
+        if [ $IS_RUNNING -eq 0 ]; then
+            echo "Script already running, exiting";
+            exit 1;
+        fi
+    else
+        echo $$ > $HOME/search.pid;
+    fi
+
     if [ ! -e $LOGS_DIR ]; then
         mkdir -p $LOGS_DIR; check_status;
     fi
@@ -106,10 +121,22 @@ else
 
     DATE=`date +\%Y-\%m-\%d-\%H\%M`
 
-    cleanup;
-    do_core rq-fr; cleanup rq-fr;
-    do_core rq-en; cleanup rq-fr;
+    cleanup rq-fr;
+    do_core rq-fr;
+    RETCODE_FR=$?
+    cleanup rq-fr;
+
+    cleanup rq-en;
+    do_core rq-en;
+    RETCODE_EN=$?
+    cleanup rq-en;
 
     # Delete empty log files
     find $LOGS_DIR -type f -size 0 -exec rm -f '{}' \;
+
+    rm -f $HOME/search.pid;
+
+    if [ $RETCODE_FR -ne 0 || $RETCODE_EN -ne 0 ]; then
+        return -1;
+    fi
 fi
