@@ -104,7 +104,7 @@ else
     if [ -e "$HOME/search.pid" ]; then
         SEARCH_PID=`cat $HOME/search.pid`
         IS_RUNNING=`kill -0 $SEARCH_PID`
-        if [ $IS_RUNNING -eq 0 ]; then
+        if [ "$IS_RUNNING" -eq "0" ]; then
             echo "Script already running, exiting";
             exit 1;
         fi
@@ -136,7 +136,7 @@ else
 
     rm -f $HOME/search.pid;
 
-    if [ $RETCODE_FR -ne 0 || $RETCODE_EN -ne 0 ]; then
+    if [ "$RETCODE_FR" -ne "0" || "$RETCODE_EN" -ne "0" ]; then
         return -1;
     fi
 fi
