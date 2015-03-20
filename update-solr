@@ -5,7 +5,7 @@ if [ "${0}" != "-bash" ]; then
 fi
 
 if [ "${1}" = "" ]; then
-    echo "You must provide the path to solr distribution (ex: ${SCRIPT_NAME} solr-4.10.1.tgz)"
+    echo "You must provide the path to solr distribution (ex: ${SCRIPT_NAME} solr-4.10.4.tgz)"
     exit 1
 fi
 
@@ -24,7 +24,16 @@ fi
 
 echo "Extracting solr distribution from $1"
 tar xf $1
-cd $DIRNAME/example/webapps
+if [ -e $DIRNAME/example/webapps/solr.war ]; then
+    cd $DIRNAME/example/webapps
+else
+    if [ -e $DIRNAME/server/webapps/solr.war ]; then
+        cd $DIRNAME/server/webapps
+    else
+        echo "Unable to find solr.war"
+        exit 1
+    fi
+fi
 
 echo "Adding Log4j into solr.war"
 mkdir solr
@@ -36,11 +45,13 @@ cp ../../resources/log4j.properties WEB-INF/classes/
 zip ../solr.war -r *
 cd ..
 
-echo "Installing solr"
-sudo service tomcat7 stop
-sudo rm -rf /var/lib/tomcat7/webapps/solr/
-sudo mv solr.war /var/lib/tomcat7/webapps/
-sudo service tomcat7 start
+if [ -e solr.war ]; then
+    echo "Installing solr"
+    sudo service tomcat7 stop
+    sudo rm -rf /var/lib/tomcat7/webapps/solr/
+    sudo mv solr.war /var/lib/tomcat7/webapps/
+    sudo service tomcat7 start
+fi
 
 echo "Removing temporary directory"
 cd $CURDIR
