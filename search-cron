@@ -136,7 +136,10 @@ else
 
     rm -f $HOME/search.pid;
 
-    if [ "$RETCODE_FR" -ne "0" || "$RETCODE_EN" -ne "0" ]; then
+    if [ "$RETCODE_FR" -ne "0" ]; then
+        return -1;
+    fi
+    if [ "$RETCODE_EN" -ne "0" ]; then
         return -1;
     fi
 fi
