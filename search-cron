@@ -33,18 +33,20 @@ do_core() {
     REINDEX_OUT_LOG=$LOGS_DIR/${DATE}-OUT-reindex-${1}.log
     REINDEX_ERR_LOG=$LOGS_DIR/${DATE}-ERROR-reindex-${1}.log
 
-    if [ $REMAINING_SIZE -le $MUST_REMAIN_SPACE ]; then
-        echo "${1}: Not enough space to create the backup";
-        return 1;
-    fi
     # Create a backup of the crawl DB, just in case
-    tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C $HOME crawl-${1} > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
-    RETCODE=$?
-    # Check if the backup failed
-    if [ $RETCODE -ne 0 ]; then
-        echo "${1}: Backup failed (${RETCODE})";
-        rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
-        return 1;
+    if [ -e "${HOME}/crawl-${1}" ]; then
+        if [ $REMAINING_SIZE -le $MUST_REMAIN_SPACE ]; then
+            echo "${1}: Not enough space to create the backup";
+            return 1;
+        fi
+        tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C $HOME crawl-${1} > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
+        RETCODE=$?
+        # Check if the backup failed
+        if [ $RETCODE -ne 0 ]; then
+            echo "${1}: Backup failed (${RETCODE})";
+            rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
+            return 1;
+        fi
     fi
 
     # Remove old segments
