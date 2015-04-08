@@ -5,7 +5,6 @@ SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
 FIXSEGMENTS_SCRIPT=$SCRIPTS_DIR/fixSegments
-BACKUPS_DIR=$HOME/backups
 CURWD=`pwd`
 
 MAX_FETCH_TIME=2
@@ -69,7 +68,7 @@ do_core() {
         # Remove old log files
         find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
-        find $HOME/backups/ -type f -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
+        find $BACKUPS_DIR -type f -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
         # Reindex all pages
         $REINDEX_SCRIPT $1 > $REINDEX_OUT_LOG 2> $REINDEX_ERR_LOG
@@ -106,7 +105,7 @@ else
     if [ -e "$HOME/search.pid" ]; then
         SEARCH_PID=`cat $HOME/search.pid`
         IS_RUNNING=`kill -0 $SEARCH_PID`
-        if [ "$IS_RUNNING" -eq "0" ]; then
+        if [ "$IS_RUNNING" = "0" ]; then
             echo "Script already running, exiting";
             exit 1;
         fi
@@ -139,9 +138,9 @@ else
     rm -f $HOME/search.pid;
 
     if [ "$RETCODE_FR" -ne "0" ]; then
-        return -1;
+        exit 1;
     fi
     if [ "$RETCODE_EN" -ne "0" ]; then
-        return -1;
+        exit 1;
     fi
 fi
