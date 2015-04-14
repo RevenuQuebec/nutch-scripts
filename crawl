@@ -1,17 +1,18 @@
 #!/bin/sh
 
-CORE_NAME=$1
-CRAWLDB_DIR=${HOME}/crawl-${CORE_NAME}/crawldb
-NUTCH_HOME=${HOME}/apache-nutch-${CORE_NAME}/
-
 SOURCE_DIR=$( dirname "$0" )
 DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+
+CORE_NAME=$1
+CRAWLDB_DIR=${CORES_HOME}/${CORE_NAME}/crawldb/crawldb
+NUTCH_HOME=${CORES_HOME}/${CORE_NAME}/apache-nutch/
 
 if [ ! -e $CRAWLDB_DIR ]; then
     mkdir -p $CRAWLDB_DIR
 fi
 
-. $DIR/common.sh
 check_params $1
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
 

@@ -1,14 +1,15 @@
 #!/bin/sh
 
-CORE_NAME=$1
-
 SOURCE_DIR=$( dirname "$0" )
 DIR=$( cd "$SOURCE_DIR" && pwd )
 
 . $DIR/common.sh
-check_params $1
 
-SEGMENTS_DIR=${HOME}/crawl-${CORE_NAME}/segments
+CORE_NAME=$1
+
+check_params ${CORE_NAME}
+
+SEGMENTS_DIR=${CORES_HOME}/${CORE_NAME}/crawldb/segments
 REQUIRED_DIRS="crawl_fetch crawl_parse parse_data parse_text"
 
 SEGMENT_DIRS=$( ls -d $SEGMENTS_DIR/* )
