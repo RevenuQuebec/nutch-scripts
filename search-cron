@@ -1,5 +1,10 @@
 #!/bin/sh
 
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+
 MUST_REMAIN_SPACE=500000 # 500 Mb
 SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
@@ -14,7 +19,7 @@ LOGS_DIR=$1
 BACKUPS_DIR=$2
 
 do_core() {
-    CRAWLDB_DIR=$HOME/crawl-${1}
+    CRAWLDB_DIR=${CORES_HOME}/${CORE_NAME}/crawldb
     if [ ! -e "${CRAWLDB_DIR}" ]; then
         mkdir ${CRAWLDB_DIR}
     else
@@ -38,7 +43,7 @@ do_core() {
             echo "${1}: Not enough space to create the backup";
             return 1;
         fi
-        tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C $HOME crawl-${1} > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
+        tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C ${CORES_HOME}/${CORE_NAME} crawldb > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
         RETCODE=$?
         # Check if the backup failed
         if [ $RETCODE -ne 0 ]; then
@@ -60,13 +65,13 @@ do_core() {
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
     if [ $RETCODE -ne 0 ]; then
         echo "${1}: Crawl failed, restoring backup (${RETCODE})";
-        mv $HOME/crawl-${1} $HOME/crawl-${1}.old;
-        tar -C $HOME -jxf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2;
-        rm -rf $HOME/crawl-${1}.old;
+        mv ${CORES_HOME}/${CORE_NAME}/crawldb ${CORES_HOME}/${CORE_NAME}/crawldb.old;
+        tar -C ${CORES_HOME}/${CORE_NAME} -jxf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2;
+        rm -rf ${CORES_HOME}/${CORE_NAME}/crawldb.old;
         return 1;
     else
         # Remove old log files
-        find $HOME/logs/ -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
+        find $LOGS_DIR -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
         find $BACKUPS_DIR -type f -mtime +${MAX_BACKUP_TIME} -exec rm -rf {} \; &> /dev/null
 
@@ -102,15 +107,15 @@ cleanup() {
 if [ "$LOGS_DIR" = "" ] || [ "$BACKUPS_DIR" = "" ]; then
     echo "You must provide the path to the logs and backups directories (ex: ./search-cron ./logs ./backups)"
 else
-    if [ -e "$HOME/search.pid" ]; then
-        SEARCH_PID=`cat $HOME/search.pid`
+    if [ -e "${CORES_HOME}/search.pid" ]; then
+        SEARCH_PID=`cat ${CORES_HOME}/search.pid`
         IS_RUNNING=`kill -0 $SEARCH_PID`
         if [ "$IS_RUNNING" = "0" ]; then
             echo "Script already running, exiting";
             exit 1;
         fi
     else
-        echo $$ > $HOME/search.pid;
+        echo $$ > ${CORES_HOME}/search.pid;
     fi
 
     if [ ! -e $LOGS_DIR ]; then
@@ -135,7 +140,7 @@ else
     # Delete empty log files
     find $LOGS_DIR -type f -size 0 -exec rm -f '{}' \;
 
-    rm -f $HOME/search.pid;
+    rm -f ${CORES_HOME}/search.pid;
 
     if [ "$RETCODE_FR" -ne "0" ]; then
         exit 1;

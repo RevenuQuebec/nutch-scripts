@@ -10,14 +10,10 @@ CRAWLDB_DIR=${CORES_HOME}/${CORE_NAME}/crawldb/crawldb
 NUTCH_HOME=${CORES_HOME}/${CORE_NAME}/apache-nutch
 
 check_params $CORE_NAME
-if [ "$2" = "" ]; then
-    echo "You must provide the status (db_unfetched, db_fetched, db_redir_temp, db_redir_perm or db_duplicate)"
-    exit 1
-fi
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
 
 OUT_DIR=`mktemp -d`
 echo "Output directory is $OUT_DIR"
-$NUTCH_HOME/bin/nutch readdb $CRAWLDB_DIR -dump $OUT_DIR/dump -status $2
-cat $OUT_DIR/dump/* | grep -e "^http://" | sed -e "s/ *Version: [0-9] *$//g" | sed -e "s/\(:\|\/\|\.\|\-\|\+\|\?\)/\\\\\1/g"
+$NUTCH_HOME/bin/nutch readdb $CRAWLDB_DIR -dump $OUT_DIR/dump
+cat $OUT_DIR/dump/* | grep -e "^http://" | sed -e "s/ *Version: [0-9] *$//g"
 rm -rf $OUT_DIR

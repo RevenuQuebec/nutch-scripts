@@ -4,6 +4,12 @@ if [ "${0}" != "-bash" ]; then
     SCRIPT_NAME=`basename $0`
 fi
 
+CORES_HOME=$HOME/cores/
+
+if [ -e $HOME/.nutch-config ]; then
+    . $HOME/.nutch-config
+fi
+
 initialize() {
     export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
     check_crawldb $1 $2
@@ -19,7 +25,7 @@ check_params() {
 
 check_crawldb() {
     if [ ! -e "${2}" ]; then
-        echo "The core named ${1} doesn't exist"
+        echo "The core named ${1} doesn't exist (${2})"
         exit 1
     fi
 }
