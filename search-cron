@@ -40,7 +40,7 @@ do_core() {
     REINDEX_ERR_LOG=$LOGS_DIR/${DATE}-ERROR-reindex-${1}.log
 
     # Create a backup of the crawl DB, just in case
-    if [ -e "${HOME}/crawl-${1}" ]; then
+    if [ -e "${CORES_HOME}/${CORE_NAME}/crawldb" ]; then
         if [ $REMAINING_SIZE -le $MUST_REMAIN_SPACE ]; then
             echo "${1}: Not enough space to create the backup";
             return 1;
@@ -104,7 +104,7 @@ cleanup() {
         rm -rf $HADOOP_TMP_DIR;
     fi
 
-    NUTCH_HOME=${HOME}/apache-nutch-${1}/
+    NUTCH_HOME=${CORES_HOME}/${1}/apache-nutch/
     rm -f ${NUTCH_HOME}/logs/hadoop.*;
 }
 

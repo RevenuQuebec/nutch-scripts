@@ -13,7 +13,7 @@ if [ ! -e $CRAWLDB_DIR ]; then
     mkdir -p $CRAWLDB_DIR
 fi
 
-check_params $1
+check_params ${CORE_NAME}
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
 
-$NUTCH_HOME/bin/crawl $NUTCH_HOME/urls/ $HOME/crawl-$1/ http://localhost:8080/solr/$1/ 20
+$NUTCH_HOME/bin/crawl $NUTCH_HOME/urls/ ${CORES_HOME}/${CORE_NAME}/crawldb/ http://localhost:8080/solr/${CORE_NAME}/ 20
