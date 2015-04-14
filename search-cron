@@ -19,11 +19,13 @@ LOGS_DIR=$1
 BACKUPS_DIR=$2
 
 do_core() {
+    CORE_NAME=$1
+
     CRAWLDB_DIR=${CORES_HOME}/${CORE_NAME}/crawldb
     if [ ! -e "${CRAWLDB_DIR}" ]; then
         mkdir ${CRAWLDB_DIR}
     else
-        $FIXSEGMENTS_SCRIPT $1
+        $FIXSEGMENTS_SCRIPT ${CORE_NAME}
     fi
 
     CRAWLDB_SIZE=`du --max-depth=0 $CRAWLDB_DIR | awk '{print $1}'`

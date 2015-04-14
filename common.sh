@@ -4,7 +4,7 @@ if [ "${0}" != "-bash" ]; then
     SCRIPT_NAME=`basename $0`
 fi
 
-CORES_HOME=$HOME/cores/
+CORES_HOME=$HOME/cores
 
 if [ -e $HOME/.nutch-config ]; then
     . $HOME/.nutch-config
