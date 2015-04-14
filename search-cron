@@ -64,6 +64,7 @@ do_core() {
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
     RETCODE=$?
+    echo "------------ TERMINE ------------" > $CRAWL_OUT_LOG;
     # Check if an error occured while crawling the website
     if [ $RETCODE -ne 0 ]; then
         echo "${1}: Crawl failed (${RETCODE})";
