@@ -65,15 +65,7 @@ do_core() {
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
     RETCODE=$?
     # If an error happened while crawling the website, we must restore the crawldb directory from a backup
-    if [ $RETCODE -ne 0 ]; then
-        if [ -e $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 ]; then
-            echo "${1}: Crawl failed, restoring backup (${RETCODE})";
-            mv ${CORES_HOME}/${CORE_NAME}/crawldb ${CORES_HOME}/${CORE_NAME}/crawldb.old;
-            tar -C ${CORES_HOME}/${CORE_NAME} -jxf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2;
-            rm -rf ${CORES_HOME}/${CORE_NAME}/crawldb.old;
-            return 1;
-        fi
-    else
+    if [ $RETCODE -eq 0 ]; then
         # Remove old log files
         find $LOGS_DIR -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
