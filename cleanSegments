@@ -1,14 +1,15 @@
 #!/bin/sh
 
+SOURCE_DIR=$( dirname "$0" )
+DIR=$( cd "$SOURCE_DIR" && pwd )
+
+. $DIR/common.sh
+
 CORE_NAME=$1
 SEGMENTS_DIR=${CORES_HOME}/${CORE_NAME}/crawldb/segments
 # @todo: read this from nutch config
 MAX_FETCH_TIME=2
 
-SOURCE_DIR=$( dirname "$0" )
-DIR=$( cd "$SOURCE_DIR" && pwd )
-
-. $DIR/common.sh
 check_params $1
 
 cd $SEGMENTS_DIR && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
