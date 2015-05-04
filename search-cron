@@ -10,6 +10,7 @@ SCRIPTS_DIR=`dirname "${0}"`
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
 FIXSEGMENTS_SCRIPT=$SCRIPTS_DIR/fixSegments
+RSNAPSHOT_SCRIPT=/usr/bin/rsnapshot
 CURWD=`pwd`
 
 MAX_FETCH_TIME=2
@@ -45,7 +46,7 @@ do_core() {
             echo "${1}: Not enough space to create the backup";
             return 1;
         fi
-        tar -jcf $BACKUPS_DIR/crawl-${1}-$DATE.tar.bz2 -C ${CORES_HOME}/${CORE_NAME} crawldb > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
+        $RSNAPSHOT_SCRIPT -c ${CORES_HOME}/${CORE_NAME}/rsnapshot.conf daily > $BACKUP_OUT_LOG 2> $BACKUP_ERR_LOG;
         RETCODE=$?
         # Check if the backup failed
         if [ $RETCODE -ne 0 ]; then
@@ -64,12 +65,13 @@ do_core() {
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
     RETCODE=$?
-    echo "------------ TERMINE ------------" > $CRAWL_OUT_LOG;
     # Check if an error occured while crawling the website
     if [ $RETCODE -ne 0 ]; then
         echo "${1}: Crawl failed (${RETCODE})";
         return 1;
     else
+        echo "------------ TERMINE ------------" > $CRAWL_OUT_LOG;
+
         # Remove old log files
         find $LOGS_DIR -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
         # Remove old backups
