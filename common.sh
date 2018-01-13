@@ -5,6 +5,7 @@ if [ "${0}" != "-bash" ]; then
 fi
 
 CORES_HOME=$HOME/cores
+SOLR_URL=http://localhost:8983/solr
 
 if [ -e $HOME/.nutch-config ]; then
     . $HOME/.nutch-config

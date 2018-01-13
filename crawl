@@ -16,4 +16,7 @@ fi
 check_params ${CORE_NAME}
 initialize $CORE_NAME $CRAWLDB_DIR $NUTCH_HOME
 
-$NUTCH_HOME/bin/crawl $NUTCH_HOME/urls/ ${CORES_HOME}/${CORE_NAME}/crawldb/ http://localhost:8080/solr/${CORE_NAME}/ 20
+#Ajout des liens présent dans le sitemap.xml à la racine du site avant la commande de crawl/parse
+$NUTCH_HOME/bin/nutch sitemap $CRAWLDB_DIR -sitemapUrls $NUTCH_HOME/sitemapUrls/
+
+$NUTCH_HOME/bin/crawl -i -D solr.server.url=${SOLR_URL}/${CORE_NAME} -s $NUTCH_HOME/urls/ ${CORES_HOME}/${CORE_NAME}/crawldb/ 20

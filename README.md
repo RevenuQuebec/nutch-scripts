@@ -2,7 +2,7 @@ nutch-scripts
 =============
 
 L'utilisation d'Apache Nutch demande de réexécuter souvent les mêmes commandes de
-manières redondantes. Ces scripts ont été créés afin de faciliter l’utilisation de ces commandes.
+manières redondantes. Des scripts ont été créés afin de faciliter l’utilisation de ces commandes.
 
 Les scripts doivent toujours recevoir en entrée le nom du *core* Apache Solr sur lequel les opérations doivent être effectuées.
 
@@ -20,14 +20,14 @@ $HOME/.bashrc :
 export PATH=$PATH:$HOME/scripts
 ```
 
-## Exemple d'utilisation
+## Exemples d'utilisation
 
 Par exemple, pour lancer le parcours complet du site en français jusqu'à l'indexation, les
 commandes standard à exécuter en utilisant directement Apache Nutch sont :
 ```
 $ cd apache-nutch-bin-en/
 $ export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-$ ./bin/crawl ./urls ../crawl-fr htp://localhost:8080/solr/rq-fr 20
+$ ./bin/crawl ./urls ../crawl-fr http://localhost:8983/solr/rq-fr 20
 À l’aide des scripts d’administration, la commande est :
 $ ./scripts/crawl rq-fr
 ```

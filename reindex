@@ -17,7 +17,7 @@ DELETE_INDEX_SCRIPT=$SCRIPTS_DIR/deleteIndex
 OPTIMIZE_INDEX_SCRIPT=$SCRIPTS_DIR/optimizeIndex
 
 $DELETE_INDEX_SCRIPT $1
-$NUTCH_HOME/bin/nutch solrindex http://localhost:8080/solr/$1/ $CRAWLDB_DIR/crawldb -linkdb $CRAWLDB_DIR/linkdb/ -dir $CRAWLDB_DIR/segments/
+$NUTCH_HOME/bin/nutch solrindex ${SOLR_URL}/$1/ $CRAWLDB_DIR/crawldb -linkdb $CRAWLDB_DIR/linkdb/ -dir $CRAWLDB_DIR/segments/
 RET_CODE=$?
 if [ $RET_CODE -ne 0 ]; then
     exit $RET_CODE

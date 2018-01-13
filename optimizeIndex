@@ -6,4 +6,4 @@ DIR=$( cd "$SOURCE_DIR" && pwd )
 . $DIR/common.sh
 check_params $1
 
-curl -s http://localhost:8080/solr/$1/update?commit=true --data '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'
+curl -s ${SOLR_URL}/$1/update?commit=true --data '<optimize/>' -H 'Content-type:text/xml; charset=utf-8'

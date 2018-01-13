@@ -1,12 +1,11 @@
 #!/bin/sh
 
-SOURCE_DIR=$( dirname "$0" )
-DIR=$( cd "$SOURCE_DIR" && pwd )
+SOURCE_DIR=$( cd `dirname "$0"`; pwd )
 
-. $DIR/common.sh
+. $SOURCE_DIR/common.sh
 
 MUST_REMAIN_SPACE=500000 # 500 Mb
-SCRIPTS_DIR=`dirname "${0}"`
+SCRIPTS_DIR=$SOURCE_DIR
 CRAWL_SCRIPT=$SCRIPTS_DIR/crawl
 REINDEX_SCRIPT=$SCRIPTS_DIR/reindex
 FIXSEGMENTS_SCRIPT=$SCRIPTS_DIR/fixSegments
@@ -50,27 +49,31 @@ do_core() {
         RETCODE=$?
         # Check if the backup failed
         if [ $RETCODE -ne 0 ]; then
-            echo "${1}: Backup failed (${RETCODE})";
+            echo "${1}: Backup failed (${RETCODE}), see backup log at ${BACKUP_ERR_LOG}";
             rm -rf $BACKUPS_DIR/crawl-${1}-$DATE;
+
             return 1;
         fi
+
+        rm -rf ${CORES_HOME}/${CORE_NAME}/crawldb
     fi
 
-    # Remove old segments
-    if [ -e $CRAWLDB_DIR/segments ]; then
-        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -mtime +${MAX_FETCH_TIME} -exec rm -rf '{}' \;
-        cd $CURWD
-    fi
+#    # Remove old segments
+#    if [ -e $CRAWLDB_DIR/segments ]; then
+#        cd $CRAWLDB_DIR/segments && find . -maxdepth 1 -type d -not -path . -mtime +${MAX_FETCH_TIME} -exec rm -f '{}' \;
+#        $FIXSEGMENTS_SCRIPT ${CORE_NAME}
+#        cd $CURWD
+#    fi
 
     # Crawl the website
     $CRAWL_SCRIPT $1 > $CRAWL_OUT_LOG 2> $CRAWL_ERR_LOG;
     RETCODE=$?
     # Check if an error occured while crawling the website
     if [ $RETCODE -ne 0 ]; then
-        echo "${1}: Crawl failed (${RETCODE})";
+        echo "${1}: Crawl failed (${RETCODE}), see error log at ${CRAWL_ERR_LOG}";
         return 1;
     else
-        echo "------------ TERMINE ------------" > $CRAWL_OUT_LOG;
+        echo "------------ TERMINE ------------" >> $CRAWL_OUT_LOG;
 
         # Remove old log files
         find $LOGS_DIR -type f -mtime +${MAX_FETCH_TIME} -exec rm -rf {} \; &> /dev/null
@@ -129,15 +132,19 @@ else
 
     DATE=`date +\%Y-\%m-\%d-\%H\%M`
 
-    cleanup rq-fr;
-    do_core rq-fr;
-    RETCODE_FR=$?
-    cleanup rq-fr;
-
+    echo "Cleaning up english index"
     cleanup rq-en;
+    echo "Indexing english site"
     do_core rq-en;
     RETCODE_EN=$?
     cleanup rq-en;
+
+    echo "Cleaning up french index"
+    cleanup rq-fr;
+    echo "Indexing french site"
+    do_core rq-fr;
+    RETCODE_FR=$?
+    cleanup rq-fr;
 
     # Delete empty log files
     find $LOGS_DIR -type f -size 0 -exec rm -f '{}' \;

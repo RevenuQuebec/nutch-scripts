@@ -3,5 +3,5 @@
 if [ "$1" = "" ]; then
     echo "You must provide the core name (ex: ./commitIndex core_name)"
 else
-    curl -s http://localhost:8080/solr/$1/update?commit=true
+    curl -s ${SOLR_URL}/$1/update?commit=true
 fi;
